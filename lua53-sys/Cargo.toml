@@ -1,0 +1,9 @@
+[package]
+name = "lua53-sys"
+version = "0.1.0"
+authors = ["irxground <irxnjhtchlnrw@gmail.com>"]
+build = "build.rs"
+
+[build-dependencies]
+glob = "*"
+gcc = "*"
