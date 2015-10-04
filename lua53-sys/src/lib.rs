@@ -14,3 +14,4 @@ pub type lua_KFunction = isize;
 
 include!(concat!(env!("OUT_DIR"), "/lua.rs"));
 include!(concat!(env!("OUT_DIR"), "/lauxlib.rs"));
+include!(concat!(env!("OUT_DIR"), "/lualib.rs"));

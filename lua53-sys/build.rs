@@ -151,4 +151,5 @@ fn main() {
     build_native();
     gen_definition("LUA_API", "lua.h", "lua.rs");
     gen_definition("LUALIB_API", "lauxlib.h", "lauxlib.rs");
+    gen_definition("LUAMOD_API", "lualib.h", "lualib.rs");
 }
