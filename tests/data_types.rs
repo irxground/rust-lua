@@ -6,7 +6,7 @@ use lua::Lua;
 fn for_bool() {
     let v = true;
     let mut lua = Lua::new();
-    lua.set("a", v);
+    lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
 }
 
@@ -14,7 +14,7 @@ fn for_bool() {
 fn for_f64() {
     let v: f64 = 1.0;
     let mut lua = Lua::new();
-    lua.set("a", v);
+    lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
 }
 
@@ -22,7 +22,7 @@ fn for_f64() {
 fn for_i64() {
     let v: i64 = 123;
     let mut lua = Lua::new();
-    lua.set("a", v);
+    lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
 }
 
@@ -30,6 +30,6 @@ fn for_i64() {
 fn for_string() {
     let v: String = "Hello, world".to_string();
     let mut lua = Lua::new();
-    lua.set_ref("a", &v);
+    lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
 }
