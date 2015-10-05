@@ -1,13 +1,13 @@
 extern crate libc;
 extern crate lua53_sys as luac;
 
-pub mod values;
+pub mod data_types;
 
 use std::ffi::CString;
 use std::ffi::CStr;
 use libc::{ c_char };
 
-use values::{ Read, Write };
+use data_types::{ Read, Write };
 
 fn with_cstr<T, F>(str: &str, f: F) -> T where F: Fn(*const c_char) -> T {
     let cstr = CString::new(str).unwrap();
