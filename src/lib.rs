@@ -54,13 +54,17 @@ impl Lua {
         return T::read(self, -1);
     }
 
-    pub fn set<T: Write>(&mut self, name: &str, value: T) {
+    pub fn set_ref<T: Write>(&mut self, name: &str, value: &T) {
         value.write_top(self);
         unsafe {
             with_cstr(name.as_ref(), |str| {
                 luac::lua_setglobal(self.ptr, str);
             });
         }
+    }
+
+    pub fn set<T: Write>(&mut self, name: &str, value: T) {
+        self.set_ref(name, &value);
     }
 
     fn read_cstr(&mut self) -> &CStr {
