@@ -7,6 +7,9 @@ pub struct lua_State;
 pub type lua_Number = f64;
 
 #[allow(non_camel_case_types)]
+pub type lua_Integer = i64;
+
+#[allow(non_camel_case_types)]
 pub type lua_KContext = isize;
 
 #[allow(non_camel_case_types)]

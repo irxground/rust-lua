@@ -40,6 +40,7 @@ fn to_ctype(token: &str) -> Option<&str> {
     let defined_type = vec![
         "lua_State",
         "lua_Number",
+        "lua_Integer",
         "lua_KContext",
         "lua_KFunction",
     ];
