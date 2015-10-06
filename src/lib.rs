@@ -56,20 +56,29 @@ impl Lua {
         }
     }
 
-    pub fn run(&mut self, code: &str) -> Result<(), String> {
-        unsafe {
-            let cstr = CString::new(code).unwrap();
-            let code = luac::luaL_loadstring(self.ptr, cstr.as_ptr());
-            if code != 0 {
-                return Err("fail to parse".to_string()); // TODO error
-            }
-            let code = luac::lua_pcallk(self.ptr, 0, 0, 0, 0, None);
-            if code != 0 {
-                let str = String::read(self, -1).expect("cannot read error message");
-                return Err(str);
-            }
+    pub fn eval(&mut self, code: &str) -> Result<Variant, String> {
+        let cstr = CString::new(code).unwrap();
+        let code = unsafe { luac::luaL_loadstring(self.ptr, cstr.as_ptr()) };
+        if code != 0 {
+            return Err("fail to parse".to_string()); // TODO error
         }
-        return Ok(());
+        let code = unsafe { luac::lua_pcallk(self.ptr, 0, 0, 0, 0, None) };
+        if code != 0 {
+            let str = String::read(self, -1).expect("cannot read error message");
+            return Err(str);
+        }
+        let value = Variant::read(self, -1);
+        self.pop_stack(1);
+        if let Some(value) = value {
+            Ok(value)
+        } else {
+            Ok(Variant::Nil)
+        }
+    }
+
+    pub fn run(&mut self, code: &str) -> Result<(), String> {
+        try!(self.eval(code));
+        Ok(())
     }
 }
 
