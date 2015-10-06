@@ -8,6 +8,7 @@ fn for_bool() {
     let mut lua = Lua::new();
     lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
+    assert_eq!(0, lua.current_stack_size());
 }
 
 #[test]
@@ -16,6 +17,7 @@ fn for_f64() {
     let mut lua = Lua::new();
     lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
+    assert_eq!(0, lua.current_stack_size());
 }
 
 #[test]
@@ -24,6 +26,7 @@ fn for_i64() {
     let mut lua = Lua::new();
     lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
+    assert_eq!(0, lua.current_stack_size());
 }
 
 #[test]
@@ -32,4 +35,5 @@ fn for_string() {
     let mut lua = Lua::new();
     lua.set("a", &v);
     assert_eq!(Some(v), lua.get("a"));
+    assert_eq!(0, lua.current_stack_size());
 }

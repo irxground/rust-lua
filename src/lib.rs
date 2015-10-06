@@ -31,13 +31,19 @@ impl Lua {
         unsafe { luac::lua_gettop(self.ptr) }
     }
 
+    pub fn pop_stack(&mut self, n: i32) {
+        unsafe { luac::lua_settop(self.ptr, - n - 1)}
+    }
+
     pub fn get<T: Read>(&mut self, name: &str) -> Option<T> {
         let cstr = CString::new(name).unwrap();
         let success = unsafe { luac::lua_getglobal(self.ptr, cstr.as_ptr()) != 0 };
         if ! success {
             return None;
         }
-        return T::read(self, -1);
+        let value = T::read(self, -1);
+        self.pop_stack(1);
+        return value;
     }
 
     pub fn set<T: Write>(&mut self, name: &str, value: &T) {
