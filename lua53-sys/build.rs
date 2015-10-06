@@ -32,6 +32,7 @@ fn build_native() {
 fn avoid_keyword(name: &str) -> &str {
     match name {
         "ref" => "ref_",
+        "fn" => "fn_",
         _ => name
     }
 }
@@ -41,8 +42,12 @@ fn to_ctype(token: &str) -> Option<&str> {
         "lua_State",
         "lua_Number",
         "lua_Integer",
+        "lua_Unsigned",
         "lua_KContext",
+        "lua_CFunction",
         "lua_KFunction",
+        "lua_Reader",
+        "lua_Writer",
     ];
     if defined_type.iter().any(|t| *t == token ) {
         return Some(token);

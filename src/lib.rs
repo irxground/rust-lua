@@ -78,10 +78,9 @@ impl Lua {
             if code != 0 {
                 return Err("fail to parse".to_string()); // TODO error
             }
-            let code = luac::lua_pcallk(self.ptr, 0, 0, 0, 0, 0);
+            let code = luac::lua_pcallk(self.ptr, 0, 0, 0, 0, None);
             if code != 0 {
                 let cstr = self.read_cstr();
-                // return Err(cstr.to_str().unwrap().to_string());
                 return Err(String::from_utf8_lossy(cstr.to_bytes()).to_string())
             }
         }
