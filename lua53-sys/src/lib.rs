@@ -22,3 +22,16 @@ pub type lua_Writer = Option<extern "C" fn(*mut lua_State, *const libc::c_void, 
 include!(concat!(env!("OUT_DIR"), "/lua.rs"));
 include!(concat!(env!("OUT_DIR"), "/lauxlib.rs"));
 include!(concat!(env!("OUT_DIR"), "/lualib.rs"));
+
+
+pub const LUA_TNONE          : libc::c_int = -1;
+pub const LUA_TNIL           : libc::c_int = 0;
+pub const LUA_TBOOLEAN       : libc::c_int = 1;
+pub const LUA_TLIGHTUSERDATA : libc::c_int = 2;
+pub const LUA_TNUMBER        : libc::c_int = 3;
+pub const LUA_TSTRING        : libc::c_int = 4;
+pub const LUA_TTABLE         : libc::c_int = 5;
+pub const LUA_TFUNCTION      : libc::c_int = 6;
+pub const LUA_TUSERDATA      : libc::c_int = 7;
+pub const LUA_TTHREAD        : libc::c_int = 8;
+pub const LUA_NUMTAGS        : libc::c_int = 9;

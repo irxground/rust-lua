@@ -1,11 +1,13 @@
 extern crate libc;
 extern crate lua53_sys as luac;
 
-pub mod data_types;
+mod data_types;
+mod variant;
 
 use std::ffi::CString;
 
-use data_types::{ Read, Write };
+pub use data_types::{ Read, Write };
+pub use variant::Variant;
 
 pub struct Lua {
     ptr: *mut luac::lua_State
