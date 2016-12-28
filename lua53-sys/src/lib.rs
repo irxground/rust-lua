@@ -11,14 +11,14 @@ pub use lua::{
     lua_State,
 
     /* function */
+    luaL_newstate,
     lua_close,
-    lua_pushinteger,
-    lua_tointegerx,
     lua_getglobal,
+    lua_gettop,
+    lua_pushinteger,
     lua_setglobal,
     lua_settop,
-    lua_gettop,
-    luaL_newstate,
+    lua_tointegerx,
 };
 
 #[cfg(test)]
