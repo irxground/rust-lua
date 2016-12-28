@@ -12,6 +12,12 @@ pub use lua::{
 
     /* function */
     lua_close,
+    lua_pushinteger,
+    lua_tointegerx,
+    lua_getglobal,
+    lua_setglobal,
+    lua_settop,
+    lua_gettop,
     luaL_newstate,
 };
 
