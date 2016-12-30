@@ -19,6 +19,8 @@ pub use lua::{
     lua_setglobal,
     lua_settop,
     lua_tointegerx,
+    lua_toboolean,
+    lua_pushboolean,
 };
 
 #[cfg(test)]

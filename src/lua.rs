@@ -14,8 +14,45 @@ impl Lua {
         };
     }
 
-    pub fn current_stack_size(&self) -> i32{
-        unsafe { luac::lua_gettop(self.ptr) }
+    fn get(&self, name: &str) -> bool {
+        unsafe {
+            let cstr = CString::new(name).unwrap();
+            return luac::lua_getglobal(self.ptr, cstr.as_ptr()) != 0;
+        }
+    }
+
+    pub fn get_bool(&self, name: &str) -> Option<bool> {
+        if !self.get(name) {
+            self.pop_stack();
+            return None;
+        }
+        let result = unsafe { luac::lua_toboolean(self.ptr, -1) != 0};
+        self.pop_stack();
+        return Some(result);
+    }
+
+    pub fn set_bool(&mut self, name: &str, value: bool) {
+        unsafe {
+            let b = if value { 1 } else { 0 };
+            luac::lua_pushboolean(self.ptr, b);
+            let name = CString::new(name).unwrap();
+            luac::lua_setglobal(self.ptr, name.as_ptr());
+        }
+    }
+
+    pub fn get_int(&self, name: &str) -> Option<i64> {
+        if !self.get(name) {
+            self.pop_stack();
+            return None;
+        }
+        let idx = -1;
+        let mut isnum = 0;
+        let lua_integer = unsafe { luac::lua_tointegerx(self.ptr, idx, &mut isnum) };
+        self.pop_stack();
+        if isnum == 0 {
+            return None;
+        }
+        return Some(lua_integer);
     }
 
     pub fn set_int(&mut self, name: &str, value: i64) {
@@ -26,24 +63,8 @@ impl Lua {
         }
     }
 
-    pub fn get_int(&self, name: &str) -> Option<i64> {
-        unsafe {
-            let cstr = CString::new(name).unwrap();
-            let success = luac::lua_getglobal(self.ptr, cstr.as_ptr()) != 0;
-            if ! success {
-                self.pop_stack();
-                return None;
-            }
-
-            let idx = -1;
-            let mut isnum = 0;
-            let lua_integer = luac::lua_tointegerx(self.ptr, idx, &mut isnum);
-            self.pop_stack();
-            if isnum == 0 {
-                return None;
-            }
-            return Some(lua_integer);
-        }
+    pub fn current_stack_size(&self) -> i32{
+        unsafe { luac::lua_gettop(self.ptr) }
     }
 
     fn pop_stack(&self) {
