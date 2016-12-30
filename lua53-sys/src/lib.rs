@@ -23,6 +23,8 @@ pub use lua::{
     lua_pushboolean,
     lua_pushnumber,
     lua_tonumberx,
+    lua_pushlstring,
+    luaL_tolstring,
 };
 
 #[cfg(test)]

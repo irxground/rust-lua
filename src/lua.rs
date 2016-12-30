@@ -23,11 +23,11 @@ impl Lua {
 
     pub fn get_bool(&self, name: &str) -> Option<bool> {
         if !self.get(name) {
-            self.pop_stack();
+            self.pop_stack(1);
             return None;
         }
         let value = unsafe { luac::lua_toboolean(self.ptr, -1) != 0};
-        self.pop_stack();
+        self.pop_stack(1);
         return Some(value);
     }
 
@@ -42,13 +42,13 @@ impl Lua {
 
     pub fn get_int(&self, name: &str) -> Option<i64> {
         if !self.get(name) {
-            self.pop_stack();
+            self.pop_stack(1);
             return None;
         }
         let idx = -1;
         let mut isnum = 0;
         let value = unsafe { luac::lua_tointegerx(self.ptr, idx, &mut isnum) };
-        self.pop_stack();
+        self.pop_stack(1);
         if isnum == 0 {
             return None;
         }
@@ -65,13 +65,13 @@ impl Lua {
 
     pub fn get_float(&self, name: &str) -> Option<f64> {
         if !self.get(name) {
-            self.pop_stack();
+            self.pop_stack(1);
             return None;
         }
         let idx = -1;
         let mut isnum = 0;
         let value = unsafe { luac::lua_tonumberx(self.ptr, idx, &mut isnum) };
-        self.pop_stack();
+        self.pop_stack(1);
         if isnum == 0 {
             return None;
         }
@@ -86,12 +86,39 @@ impl Lua {
         }
     }
 
+    pub fn get_str(&self, name: &str) -> Option<&str> {
+        use std::slice::from_raw_parts;
+        use std::str::from_utf8;
+
+        if !self.get(name) {
+            self.pop_stack(1);
+            return None;
+        }
+        let slice = unsafe {
+            let mut len = 0;
+            let ptr = luac::luaL_tolstring(self.ptr, -1, &mut len) as *const u8;
+            from_raw_parts(ptr, len)
+        };
+        self.pop_stack(2);
+        match from_utf8(slice) {
+            Ok(x) => Some(x),
+            Err(_) => None,
+        }
+    }
+
+    pub fn set_str(&mut self, name: &str, value: &str) {
+        unsafe {
+            luac::lua_pushlstring(self.ptr, value.as_ptr() as *const i8, value.len());
+            let name = CString::new(name).unwrap();
+            luac::lua_setglobal(self.ptr, name.as_ptr());
+        }
+    }
+
     pub fn current_stack_size(&self) -> i32{
         unsafe { luac::lua_gettop(self.ptr) }
     }
 
-    fn pop_stack(&self) {
-        let n = 1;
+    fn pop_stack(&self, n: i32) {
         unsafe { luac::lua_settop(self.ptr, -1 - n) }
     }
 }

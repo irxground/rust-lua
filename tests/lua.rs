@@ -46,3 +46,20 @@ fn test_float() {
     assert_eq!(0, lua.current_stack_size());
 }
 
+#[test]
+fn test_str() {
+    let mut lua = Lua::new();
+
+    lua.set_str("a", "hello");
+    assert_eq!(0, lua.current_stack_size());
+
+    assert_eq!(None, lua.get_str("b"));
+    assert_eq!(0, lua.current_stack_size());
+
+    assert_eq!(Some("hello"), lua.get_str("a"));
+    assert_eq!(0, lua.current_stack_size());
+
+    lua.set_str("a", "");
+    assert_eq!(Some(""), lua.get_str("a"));
+    assert_eq!(0, lua.current_stack_size());
+}
