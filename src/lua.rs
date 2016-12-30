@@ -114,6 +114,25 @@ impl Lua {
         }
     }
 
+    pub fn run(&mut self, code: &str) -> Result<(), ()> {
+        let nargs = 0;
+        let nresults = 0;
+
+        let cstr = CString::new(code).unwrap();
+        let code = unsafe { luac::luaL_loadstring(self.ptr, cstr.as_ptr()) };
+        if code != 0 {
+            debug_assert!(self.current_stack_size() == 0);
+            return Err(());
+        }
+        let code = unsafe { luac::lua_pcallk(self.ptr, nargs, nresults, 0, 0, None) };
+        if code != 0 {
+            debug_assert!(self.current_stack_size() == 0);
+            return Err(());
+        }
+        debug_assert!(self.current_stack_size() == 0);
+        return Ok(());
+    }
+
     pub fn current_stack_size(&self) -> i32{
         unsafe { luac::lua_gettop(self.ptr) }
     }

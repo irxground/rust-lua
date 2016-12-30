@@ -25,6 +25,8 @@ pub use lua::{
     lua_tonumberx,
     lua_pushlstring,
     luaL_tolstring,
+    luaL_loadstring,
+    lua_pcallk,
 };
 
 #[cfg(test)]

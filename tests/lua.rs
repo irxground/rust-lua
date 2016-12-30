@@ -63,3 +63,12 @@ fn test_str() {
     assert_eq!(Some(""), lua.get_str("a"));
     assert_eq!(0, lua.current_stack_size());
 }
+
+#[test]
+fn test_run() {
+    let mut lua = Lua::new();
+
+    lua.run("a = 1 + 1").unwrap();
+    assert_eq!(Some(2), lua.get_int("a"));
+    assert_eq!(0, lua.current_stack_size());
+}
