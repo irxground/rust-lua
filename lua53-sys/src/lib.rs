@@ -21,6 +21,8 @@ pub use lua::{
     lua_tointegerx,
     lua_toboolean,
     lua_pushboolean,
+    lua_pushnumber,
+    lua_tonumberx,
 };
 
 #[cfg(test)]

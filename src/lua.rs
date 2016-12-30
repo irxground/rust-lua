@@ -26,9 +26,9 @@ impl Lua {
             self.pop_stack();
             return None;
         }
-        let result = unsafe { luac::lua_toboolean(self.ptr, -1) != 0};
+        let value = unsafe { luac::lua_toboolean(self.ptr, -1) != 0};
         self.pop_stack();
-        return Some(result);
+        return Some(value);
     }
 
     pub fn set_bool(&mut self, name: &str, value: bool) {
@@ -47,17 +47,40 @@ impl Lua {
         }
         let idx = -1;
         let mut isnum = 0;
-        let lua_integer = unsafe { luac::lua_tointegerx(self.ptr, idx, &mut isnum) };
+        let value = unsafe { luac::lua_tointegerx(self.ptr, idx, &mut isnum) };
         self.pop_stack();
         if isnum == 0 {
             return None;
         }
-        return Some(lua_integer);
+        return Some(value);
     }
 
     pub fn set_int(&mut self, name: &str, value: i64) {
         unsafe {
             luac::lua_pushinteger(self.ptr, value);
+            let name = CString::new(name).unwrap();
+            luac::lua_setglobal(self.ptr, name.as_ptr());
+        }
+    }
+
+    pub fn get_float(&self, name: &str) -> Option<f64> {
+        if !self.get(name) {
+            self.pop_stack();
+            return None;
+        }
+        let idx = -1;
+        let mut isnum = 0;
+        let value = unsafe { luac::lua_tonumberx(self.ptr, idx, &mut isnum) };
+        self.pop_stack();
+        if isnum == 0 {
+            return None;
+        }
+        return Some(value);
+    }
+
+    pub fn set_float(&mut self, name: &str, value: f64) {
+        unsafe {
+            luac::lua_pushnumber(self.ptr, value);
             let name = CString::new(name).unwrap();
             luac::lua_setglobal(self.ptr, name.as_ptr());
         }
