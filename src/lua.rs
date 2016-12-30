@@ -1,9 +1,12 @@
 extern crate lua53_sys as luac;
 
 use std::ffi::CString;
+use read::Read;
+
+pub type LuaPtr = *mut luac::lua_State;
 
 pub struct Lua {
-    ptr: *mut luac::lua_State,
+    pub ptr: LuaPtr,
 }
 
 impl Lua {
@@ -14,21 +17,20 @@ impl Lua {
         };
     }
 
-    fn get(&self, name: &str) -> bool {
-        unsafe {
-            let cstr = CString::new(name).unwrap();
-            return luac::lua_getglobal(self.ptr, cstr.as_ptr()) != 0;
-        }
-    }
-
-    pub fn get_bool(&self, name: &str) -> Option<bool> {
-        if !self.get(name) {
+    pub fn get_value<T: Read>(&self, name: &str) -> Option<T> {
+        let cstr = CString::new(name).unwrap();
+        let success = unsafe { luac::lua_getglobal(self.ptr, cstr.as_ptr()) != 0 };
+        if !success {
             self.pop_stack(1);
             return None;
         }
-        let value = unsafe { luac::lua_toboolean(self.ptr, -1) != 0};
-        self.pop_stack(1);
-        return Some(value);
+        let (v, size) = unsafe { T::read_from_stack(&self, -1) };
+        self.pop_stack(size as i32);
+        return v;
+    }
+
+    pub fn get_bool(&self, name: &str) -> Option<bool> {
+        self.get_value::<bool>(name)
     }
 
     pub fn set_bool(&mut self, name: &str, value: bool) {
@@ -41,18 +43,7 @@ impl Lua {
     }
 
     pub fn get_int(&self, name: &str) -> Option<i64> {
-        if !self.get(name) {
-            self.pop_stack(1);
-            return None;
-        }
-        let idx = -1;
-        let mut isnum = 0;
-        let value = unsafe { luac::lua_tointegerx(self.ptr, idx, &mut isnum) };
-        self.pop_stack(1);
-        if isnum == 0 {
-            return None;
-        }
-        return Some(value);
+        self.get_value::<i64>(name)
     }
 
     pub fn set_int(&mut self, name: &str, value: i64) {
@@ -64,18 +55,7 @@ impl Lua {
     }
 
     pub fn get_float(&self, name: &str) -> Option<f64> {
-        if !self.get(name) {
-            self.pop_stack(1);
-            return None;
-        }
-        let idx = -1;
-        let mut isnum = 0;
-        let value = unsafe { luac::lua_tonumberx(self.ptr, idx, &mut isnum) };
-        self.pop_stack(1);
-        if isnum == 0 {
-            return None;
-        }
-        return Some(value);
+        self.get_value::<f64>(name)
     }
 
     pub fn set_float(&mut self, name: &str, value: f64) {
@@ -87,23 +67,7 @@ impl Lua {
     }
 
     pub fn get_str(&self, name: &str) -> Option<&str> {
-        use std::slice::from_raw_parts;
-        use std::str::from_utf8;
-
-        if !self.get(name) {
-            self.pop_stack(1);
-            return None;
-        }
-        let slice = unsafe {
-            let mut len = 0;
-            let ptr = luac::luaL_tolstring(self.ptr, -1, &mut len) as *const u8;
-            from_raw_parts(ptr, len)
-        };
-        self.pop_stack(2);
-        match from_utf8(slice) {
-            Ok(x) => Some(x),
-            Err(_) => None,
-        }
+        self.get_value::<&str>(name)
     }
 
     pub fn set_str(&mut self, name: &str, value: &str) {
