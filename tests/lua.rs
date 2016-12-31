@@ -75,3 +75,15 @@ fn test_run() {
     assert_eq!(Some(2), lua.get_value("a"));
     assert_eq!(0, lua.current_stack_size());
 }
+
+#[test]
+fn test_fn() {
+    let mut n = 1;
+    {
+        let mut lua = Lua::new();
+        lua.set_fn("inc", || n = n + 1);
+        assert_eq!(0, lua.current_stack_size());
+        lua.run("inc();inc();inc();").unwrap();
+    }
+    assert_eq!(4, n);
+}

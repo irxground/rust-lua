@@ -63,6 +63,25 @@ impl Lua {
         return Ok(());
     }
 
+    pub fn set_fn<F: FnMut() -> ()>(&mut self, name: &str, f: F) {
+        use std::mem::size_of;
+        unsafe extern "C" fn callback<F: FnMut() -> ()>(ptr: LuaPtr) -> i32 {
+            let f = luac::lua_touserdata(ptr, luac::lua_upvalueindex(1)) as *mut F;
+            (*f)();
+            return 0;
+        }
+
+        unsafe {
+            // TODO support finalizer
+            let size = size_of::<F>();
+            let loc = luac::lua_newuserdata(self.ptr, size) as *mut F;
+            *loc = f;
+            luac::lua_pushcclosure(self.ptr, Some(callback::<F>), 1);
+            let name = CString::new(name).unwrap();
+            luac::lua_setglobal(self.ptr, name.as_ptr());
+        }
+    }
+
     pub fn current_stack_size(&self) -> i32 {
         unsafe { luac::lua_gettop(self.ptr) }
     }
