@@ -6,8 +6,8 @@ use std::env;
 use std::path::Path;
 
 fn gen_header() {
-  let out_dir = env::var("OUT_DIR").unwrap();
-  let _ = libbindgen::builder()
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let _ = libbindgen::builder()
     .header("wrapper.h")
     .no_unstable_rust()
     // .use_core()
@@ -20,7 +20,7 @@ fn gen_binary() {
 
     for path in glob::glob("../lua/*.c").unwrap().filter_map(Result::ok) {
         if path.ends_with("lua.c") || path.ends_with("luac.c") {
-            continue
+            continue;
         }
         conf.file(path);
     }

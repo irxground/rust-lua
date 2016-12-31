@@ -13,9 +13,7 @@ pub struct Lua {
 impl Lua {
     pub fn new() -> Lua {
         let ptr = unsafe { luac::luaL_newstate() };
-        return Lua {
-            ptr: ptr
-        };
+        Lua { ptr: ptr }
     }
 
     pub fn get_value<T: Read>(&self, name: &str) -> Option<T> {
@@ -57,7 +55,7 @@ impl Lua {
         return Ok(());
     }
 
-    pub fn current_stack_size(&self) -> i32{
+    pub fn current_stack_size(&self) -> i32 {
         unsafe { luac::lua_gettop(self.ptr) }
     }
 
@@ -68,7 +66,8 @@ impl Lua {
 
 impl Drop for Lua {
     fn drop(&mut self) {
-        unsafe { luac::lua_close(self.ptr); }
+        unsafe {
+            luac::lua_close(self.ptr);
+        }
     }
 }
-

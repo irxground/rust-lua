@@ -2,7 +2,7 @@ extern crate lua53_sys as luac;
 
 use lua::Lua;
 
-pub trait Read : Sized {
+pub trait Read: Sized {
     unsafe fn read_from_stack(lua: &Lua, idx: i32) -> (Option<Self>, u8);
 }
 

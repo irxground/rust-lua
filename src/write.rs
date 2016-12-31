@@ -2,14 +2,13 @@ extern crate lua53_sys as luac;
 
 use lua::Lua;
 
-pub trait Write : Sized {
+pub trait Write: Sized {
     unsafe fn write_to_stack(self, lua: &Lua);
 }
 
 impl Write for bool {
     unsafe fn write_to_stack(self, lua: &Lua) {
-        let b = if self { 1 } else { 0 };
-        luac::lua_pushboolean(lua.ptr, b);
+        luac::lua_pushboolean(lua.ptr, self as i32);
     }
 }
 
@@ -25,7 +24,7 @@ impl Write for f64 {
     }
 }
 
-impl <'a> Write for &'a str {
+impl<'a> Write for &'a str {
     unsafe fn write_to_stack(self, lua: &Lua) {
         luac::lua_pushlstring(lua.ptr, self.as_ptr() as *const i8, self.len());
     }
