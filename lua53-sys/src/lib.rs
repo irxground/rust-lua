@@ -11,22 +11,23 @@ pub use lua::{
     lua_State,
 
     /* function */
-    luaL_newstate,
     lua_close,
     lua_getglobal,
     lua_gettop,
+    lua_pcallk,
+    lua_pushboolean,
     lua_pushinteger,
+    lua_pushlstring,
+    lua_pushnil,
+    lua_pushnumber,
     lua_setglobal,
     lua_settop,
-    lua_tointegerx,
     lua_toboolean,
-    lua_pushboolean,
-    lua_pushnumber,
+    lua_tointegerx,
     lua_tonumberx,
-    lua_pushlstring,
-    luaL_tolstring,
     luaL_loadstring,
-    lua_pcallk,
+    luaL_newstate,
+    luaL_tolstring,
 };
 
 #[cfg(test)]

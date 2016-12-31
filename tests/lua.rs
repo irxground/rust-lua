@@ -7,12 +7,15 @@ fn test_bool() {
     lua.set_value("a", true);
     assert_eq!(0, lua.current_stack_size());
 
-    let result = lua.get_value::<bool>("b");
-    assert_eq!(None, result);
+    assert_eq!(None, lua.get_value::<bool>("b"));
     assert_eq!(0, lua.current_stack_size());
 
-    let result = lua.get_value("a");
-    assert_eq!(Some(true), result);
+    assert_eq!(Some(true), lua.get_value("a"));
+    assert_eq!(0, lua.current_stack_size());
+
+    lua.remove_value("a");
+
+    assert_eq!(None, lua.get_value::<bool>("a"));
     assert_eq!(0, lua.current_stack_size());
 }
 

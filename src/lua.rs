@@ -36,6 +36,14 @@ impl Lua {
         }
     }
 
+    pub fn remove_value(&mut self, name: &str) {
+        unsafe {
+            luac::lua_pushnil(self.ptr);
+            let name = CString::new(name).unwrap();
+            luac::lua_setglobal(self.ptr, name.as_ptr());
+        }
+    }
+
     pub fn run(&mut self, code: &str) -> Result<(), ()> {
         let nargs = 0;
         let nresults = 0;

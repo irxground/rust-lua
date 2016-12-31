@@ -6,6 +6,12 @@ pub trait Write: Sized {
     unsafe fn write_to_stack(self, lua: &Lua);
 }
 
+impl Write for () {
+    unsafe fn write_to_stack(self, lua: &Lua) {
+        luac::lua_pushnil(lua.ptr);
+    }
+}
+
 impl Write for bool {
     unsafe fn write_to_stack(self, lua: &Lua) {
         luac::lua_pushboolean(lua.ptr, self as i32);
