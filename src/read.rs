@@ -39,10 +39,7 @@ impl<'a> Read for &'a str {
         let mut len = 0;
         let ptr = luac::luaL_tolstring(lua.ptr, idx, &mut len) as *const u8;
         let slice = from_raw_parts(ptr, len);
-        let v = match from_utf8(slice) {
-            Ok(x) => Some(x),
-            Err(_) => None,
-        };
+        let v = from_utf8(slice).ok();
         (v, 2)
     }
 }
