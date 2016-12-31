@@ -2,6 +2,7 @@ extern crate lua53_sys as luac;
 
 use std::ffi::CString;
 use read::Read;
+use write::Write;
 
 pub type LuaPtr = *mut luac::lua_State;
 
@@ -29,50 +30,9 @@ impl Lua {
         return v;
     }
 
-    pub fn get_bool(&self, name: &str) -> Option<bool> {
-        self.get_value::<bool>(name)
-    }
-
-    pub fn set_bool(&mut self, name: &str, value: bool) {
+    pub fn set_value<T: Write>(&mut self, name: &str, value: T) {
         unsafe {
-            let b = if value { 1 } else { 0 };
-            luac::lua_pushboolean(self.ptr, b);
-            let name = CString::new(name).unwrap();
-            luac::lua_setglobal(self.ptr, name.as_ptr());
-        }
-    }
-
-    pub fn get_int(&self, name: &str) -> Option<i64> {
-        self.get_value::<i64>(name)
-    }
-
-    pub fn set_int(&mut self, name: &str, value: i64) {
-        unsafe {
-            luac::lua_pushinteger(self.ptr, value);
-            let name = CString::new(name).unwrap();
-            luac::lua_setglobal(self.ptr, name.as_ptr());
-        }
-    }
-
-    pub fn get_float(&self, name: &str) -> Option<f64> {
-        self.get_value::<f64>(name)
-    }
-
-    pub fn set_float(&mut self, name: &str, value: f64) {
-        unsafe {
-            luac::lua_pushnumber(self.ptr, value);
-            let name = CString::new(name).unwrap();
-            luac::lua_setglobal(self.ptr, name.as_ptr());
-        }
-    }
-
-    pub fn get_str(&self, name: &str) -> Option<&str> {
-        self.get_value::<&str>(name)
-    }
-
-    pub fn set_str(&mut self, name: &str, value: &str) {
-        unsafe {
-            luac::lua_pushlstring(self.ptr, value.as_ptr() as *const i8, value.len());
+            value.write_to_stack(&self);
             let name = CString::new(name).unwrap();
             luac::lua_setglobal(self.ptr, name.as_ptr());
         }
