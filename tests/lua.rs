@@ -87,3 +87,23 @@ fn test_fn() {
     }
     assert_eq!(4, n);
 }
+
+#[test]
+fn test_fn_with_gc() {
+    use std::rc::Rc;
+    use std::cell::Cell;
+
+    let mut n = Rc::new(Cell::new(1));
+    assert!(Rc::get_mut(&mut n).is_some());
+    {
+        let m = n.clone();
+        assert!(Rc::get_mut(&mut n).is_none());
+
+        let mut lua = Lua::new();
+        lua.set_fn("inc", || m.set(m.get() + 1));
+        assert_eq!(0, lua.current_stack_size());
+        lua.run("inc();inc();inc();").unwrap();
+    }
+    assert!(Rc::get_mut(&mut n).is_some());
+    assert_eq!(4, n.get());
+}

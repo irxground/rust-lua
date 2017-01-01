@@ -65,6 +65,14 @@ impl Lua {
 
     pub fn set_fn<F: FnMut() -> ()>(&mut self, name: &str, f: F) {
         use std::mem::size_of;
+        use std::ptr::drop_in_place;
+
+        unsafe extern "C" fn call_drop<F: FnMut() -> ()>(ptr: LuaPtr) -> i32 {
+            let f = luac::lua_touserdata(ptr, luac::lua_upvalueindex(1)) as *mut F;
+            drop_in_place(f);
+            return 0;
+        }
+
         unsafe extern "C" fn callback<F: FnMut() -> ()>(ptr: LuaPtr) -> i32 {
             let f = luac::lua_touserdata(ptr, luac::lua_upvalueindex(1)) as *mut F;
             (*f)();
@@ -72,10 +80,25 @@ impl Lua {
         }
 
         unsafe {
-            // TODO support finalizer
+            // create user data
             let size = size_of::<F>();
             let loc = luac::lua_newuserdata(self.ptr, size) as *mut F;
+            debug_assert!(self.current_stack_size() == 1);
             *loc = f;
+            // metatable
+            let meta_table_name = format!("meta-{:p}", &call_drop::<F>);
+            let meta_table_name = CString::new(meta_table_name).unwrap();
+            luac::luaL_newmetatable(self.ptr, meta_table_name.as_ptr());
+            debug_assert!(self.current_stack_size() == 2);
+            "__gc".write_to_stack(self);
+            luac::lua_pushcclosure(self.ptr, Some(call_drop::<F>), 0);
+            debug_assert!(self.current_stack_size() == 4);
+            luac::lua_rawset(self.ptr, -3);
+            debug_assert!(self.current_stack_size() == 2);
+            // set metatable
+            luac::lua_setmetatable(self.ptr, -2);
+            debug_assert!(self.current_stack_size() == 1);
+            // TODO support finalizer
             luac::lua_pushcclosure(self.ptr, Some(callback::<F>), 1);
             let name = CString::new(name).unwrap();
             luac::lua_setglobal(self.ptr, name.as_ptr());
