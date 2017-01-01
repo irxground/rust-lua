@@ -80,6 +80,7 @@ impl Lua {
             *loc = f;
             // set metatable
             self.push_metatable_for_gc::<F>();
+            debug_assert!(self.current_stack_size() == 2);
             luac::lua_setmetatable(self.ptr, -2);
             debug_assert!(self.current_stack_size() == 1);
             // set global
@@ -110,12 +111,9 @@ impl Lua {
             let meta_table_name = format!("meta-{:p}", &call_drop::<T>);
             let meta_table_name = CString::new(meta_table_name).unwrap();
             luac::luaL_newmetatable(self.ptr, meta_table_name.as_ptr());
-            debug_assert!(self.current_stack_size() == 2);
             "__gc".write_to_stack(self);
             luac::lua_pushcclosure(self.ptr, Some(call_drop::<T>), 0);
-            debug_assert!(self.current_stack_size() == 4);
             luac::lua_rawset(self.ptr, -3);
-            debug_assert!(self.current_stack_size() == 2);
         }
     }
 }
