@@ -44,20 +44,20 @@ impl Lua {
         }
     }
 
-    pub fn run(&mut self, code: &str) -> Result<(), ()> {
+    pub fn run(&mut self, code: &str) -> Result<(), &str> {
         let nargs = 0;
         let nresults = 0;
 
         let cstr = CString::new(code).unwrap();
         let code = unsafe { luac::luaL_loadstring(self.ptr, cstr.as_ptr()) };
         if code != 0 {
-            debug_assert!(self.current_stack_size() == 0);
-            return Err(());
+            let s = self.read_lua_error().unwrap();
+            return Err(s);
         }
         let code = unsafe { luac::lua_pcallk(self.ptr, nargs, nresults, 0, 0, None) };
         if code != 0 {
-            debug_assert!(self.current_stack_size() == 0);
-            return Err(());
+            let s = self.read_lua_error().unwrap();
+            return Err(s);
         }
         debug_assert!(self.current_stack_size() == 0);
         return Ok(());
@@ -96,6 +96,14 @@ impl Lua {
 
     fn pop_stack(&self, n: i32) {
         unsafe { luac::lua_settop(self.ptr, -1 - n) }
+    }
+
+    fn read_lua_error<'a>(&'a mut self) -> Option<&'a str> {
+        debug_assert!(self.current_stack_size() > 0);
+
+        let (v, size) = unsafe { Read::read_from_stack(&self, -1) };
+        self.pop_stack(size as i32);
+        return v;
     }
 
     fn push_metatable_for_gc<T>(&mut self) {
